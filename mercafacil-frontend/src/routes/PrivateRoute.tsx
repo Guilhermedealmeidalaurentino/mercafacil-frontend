@@ -6,7 +6,6 @@ interface PrivateRouteProps {
   roles?: IUsuario['role'][];
 }
 
-// Rota privada — redireciona para /login se não autenticado
 export const PrivateRoute = ({ roles }: PrivateRouteProps) => {
   const { isAuthenticated, usuario } = useAuth();
 
@@ -19,13 +18,13 @@ export const PrivateRoute = ({ roles }: PrivateRouteProps) => {
   return <Outlet />;
 };
 
-// Rota pública — redireciona para dashboard se já logado
 export const PublicRoute = () => {
   const { isAuthenticated, usuario } = useAuth();
 
+  if (isAuthenticated && !usuario) return null;
+
   if (!isAuthenticated) return <Outlet />;
 
-  // Redireciona para o dashboard correto por role
   const dashboardMap: Record<IUsuario['role'], string> = {
     CLIENTE: '/cliente/reservas',
     MERCADO: '/comerciante/reservas',

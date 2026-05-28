@@ -28,12 +28,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Recarrega o usuário ao iniciar se já tiver token
   useEffect(() => {
-    if (state.token) {
-      authService.getMe()
-        .then((usuario) => setState((prev) => ({ ...prev, usuario })))
-        .catch(() => logout());
-    }
-  }, []);
+  if (state.token) {
+    authService.getMe()
+      .then((data: any) => {
+        const { mercado, ...usuario } = data;
+        setState((prev) => ({
+          ...prev,
+          usuario,
+          mercado: mercado ?? null,
+        }));
+      })
+      .catch(() => logout());
+  }
+}, []);
 
   const login = async (email: string, senha: string) => {
     const data = await authService.login(email, senha);

@@ -4,10 +4,10 @@ import { reservasService } from '../../api/services';
 import type { IReserva, IReservaComProdutos } from '../../types';
 
 const STATUS_LABEL: Record<IReservaComProdutos['status'], string> = {
-  PENDENTE: '⏳ Pendente',
-  CONFIRMADA: '✅ Confirmada',
-  RETIRADA: '📦 Retirada',
-  CANCELADA: '❌ Cancelada',
+  PENDENTE: 'Pendente',
+  CONFIRMADA: 'Confirmada',
+  RETIRADA: 'Retirada',
+  CANCELADA: 'Cancelada',
 };
 
 const PROXIMOS_STATUS: Record<IReserva['status'], IReserva['status'][]> = {

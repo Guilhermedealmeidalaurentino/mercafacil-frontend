@@ -15,7 +15,7 @@ export const authService = {
     api.post<ILoginResponse>('/entrar', { email, senha }),
 
   getMe: () =>
-    api.get<Omit<IUsuario, 'senha'>>('/me'),
+  api.get<Omit<IUsuario, 'senha'> & { mercado?: IMercado }>('/me'),
 };
 
 // ─── Usuários ────────────────────────────────────────────────────────────────
@@ -24,14 +24,15 @@ export const usuariosService = {
     api.post<{ id: number }>('/cadastrar/cliente', data),
 
   cadastrarComerciante: (data: {
-    nome: string;
-    email: string;
-    senha: string;
-    cnpj: string;
-    cep: string;
-    nome_mercado: string;
-    telefone?: string;
-  }) => api.post<{ usuario_id: number; mercado_id: number }>('/cadastrar/comerciante', data),
+  nome: string;
+  email: string;
+  senha: string;
+  cpf: string;
+  cnpj: string;
+  cep: string;
+  nome_mercado: string;
+  telefone?: string;
+}) => api.post<{ usuario_id: number; mercado_id: number }>('/cadastrar/comerciante', data),
 
   cadastrarAdmin: (data: { nome: string; email: string; senha: string }) =>
     api.post<{ id: number }>('/cadastrar/admin', data),
@@ -40,10 +41,13 @@ export const usuariosService = {
     api.get<Omit<IUsuario, 'senha'>[]>(`/usuarios?page=${page}&limit=${limit}&filter=${filter}`),
 
   atualizarPerfil: (data: { nome?: string; email?: string; telefone?: string }) =>
-    api.put<void>('/usuarios/perfil', data),
+    api.patch<void>('/usuarios/perfil', data),
 
   alterarSenha: (senhaAtual: string, novaSenha: string) =>
-    api.post<void>('/usuarios/reset-password', { senhaAtual, novaSenha }),
+    api.patch<void>('/usuarios/senha', { senhaAtual, novaSenha }),
+
+  buscarPerfil: () =>
+    api.get<Omit<IUsuario, 'senha'>>('/usuarios/perfil'),
 
   deletar: (id: number) =>
     api.delete<void>(`/usuarios/${id}`),

@@ -1,8 +1,8 @@
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 export { LoginPage } from './auth/LoginPage';
-
+export { PerfilPage } from './perfil/PerfilPage';
 export { CadastroClientePage } from './auth/CadastroClientePage';
-export const CadastroComerciantePage = () => <div><h1>Cadastro de Comerciante</h1><p>Implemente o formulário usando usuariosService.cadastrarComerciante()</p></div>;
+export { CadastroComerciantePage } from './auth/CadastroComerciantePage';
 
 // ─── Cliente ──────────────────────────────────────────────────────────────────
 export { MinhasReservasPage } from './cliente/MinhasReservasPage';

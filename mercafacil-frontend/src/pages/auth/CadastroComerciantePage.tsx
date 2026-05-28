@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usuariosService } from '../../api/services';
 
-export const CadastroClientePage = () => {
+export const CadastroComerciantePage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     nome: '',
@@ -10,6 +10,10 @@ export const CadastroClientePage = () => {
     senha: '',
     confirmarSenha: '',
     cpf: '',
+    telefone: '',
+    cnpj: '',
+    cep: '',
+    nome_mercado: '',
   });
   const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,12 +32,43 @@ export const CadastroClientePage = () => {
     setForm({ ...form, cpf: valor });
   };
 
+  const handleCNPJ = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = e.target.value
+      .replace(/\D/g, '')
+      .slice(0, 14)
+      .replace(/^(\d{2})(\d)/, '$1.$2')
+      .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+      .replace(/\.(\d{3})(\d)/, '.$1/$2')
+      .replace(/(\d{4})(\d)/, '$1-$2');
+    setForm({ ...form, cnpj: valor });
+  };
+
+  const handleCEP = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = e.target.value
+      .replace(/\D/g, '')
+      .slice(0, 8)
+      .replace(/^(\d{5})(\d)/, '$1-$2');
+    setForm({ ...form, cep: valor });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro('');
 
     if (form.senha !== form.confirmarSenha) {
       setErro('As senhas não coincidem');
+      return;
+    }
+
+    const cnpjLimpo = form.cnpj.replace(/\D/g, '');
+    if (cnpjLimpo.length !== 14) {
+      setErro('CNPJ inválido — deve ter 14 dígitos');
+      return;
+    }
+
+    const cepLimpo = form.cep.replace(/\D/g, '');
+    if (cepLimpo.length !== 8) {
+      setErro('CEP inválido — deve ter 8 dígitos');
       return;
     }
 
@@ -45,11 +80,15 @@ export const CadastroClientePage = () => {
 
     setLoading(true);
     try {
-      await usuariosService.cadastrarCliente({
+      await usuariosService.cadastrarComerciante({
         nome: form.nome,
         email: form.email,
         senha: form.senha,
         cpf: cpfLimpo,
+        telefone: form.telefone || undefined,
+        cnpj: cnpjLimpo,
+        cep: cepLimpo,
+        nome_mercado: form.nome_mercado,
       });
       navigate('/login');
     } catch (err) {
@@ -61,11 +100,11 @@ export const CadastroClientePage = () => {
 
   return (
     <div style={{ maxWidth: 400, margin: '2rem auto', padding: '2rem' }}>
-      <h1>Cadastro de Cliente</h1>
+      <h1>Cadastro de Comerciante</h1>
       <form onSubmit={handleSubmit}>
 
         <div style={{ marginBottom: '1rem' }}>
-          <label>Nome</label>
+          <label>Nome completo</label>
           <input
             name="nome"
             type="text"
@@ -105,6 +144,18 @@ export const CadastroClientePage = () => {
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
+          <label>Telefone (opcional)</label>
+          <input
+            name="telefone"
+            type="text"
+            placeholder="(11) 99999-9999"
+            value={form.telefone}
+            onChange={handleChange}
+            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
           <label>Senha</label>
           <input
             name="senha"
@@ -131,10 +182,53 @@ export const CadastroClientePage = () => {
           />
         </div>
 
+        <div style={{ marginBottom: '1rem' }}>
+          <label>Nome do mercado</label>
+          <input
+            name="nome_mercado"
+            type="text"
+            placeholder="Ex: Mercadinho do João"
+            value={form.nome_mercado}
+            onChange={handleChange}
+            required
+            minLength={3}
+            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <label>CNPJ</label>
+          <input
+            name="cnpj"
+            type="text"
+            placeholder="00.000.000/0000-00"
+            value={form.cnpj}
+            onChange={handleCNPJ}
+            required
+            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <label>CEP</label>
+          <input
+            name="cep"
+            type="text"
+            placeholder="00000-000"
+            value={form.cep}
+            onChange={handleCEP}
+            required
+            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
+          />
+          <small style={{ color: '#888' }}>
+            O endereço será preenchido automaticamente pelo CEP.
+          </small>
+        </div>
+
         {erro && <p style={{ color: 'red' }}>{erro}</p>}
 
         <button type="submit" disabled={loading} style={{ width: '100%', padding: '0.75rem' }}>
-          {loading ? 'Cadastrando...' : 'Criar conta'}
+          {loading ? 'Cadastrando...' : 'Criar conta e mercado'}
         </button>
       </form>
 
@@ -142,7 +236,7 @@ export const CadastroClientePage = () => {
         Já tem conta? <Link to="/login">Entrar</Link>
       </p>
       <p style={{ textAlign: 'center' }}>
-        É comerciante? <Link to="/cadastrar/comerciante">Cadastre seu mercado</Link>
+        É cliente? <Link to="/cadastrar/cliente">Cadastre-se como cliente</Link>
       </p>
     </div>
   );
