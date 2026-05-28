@@ -54,17 +54,4 @@ src/
 └── App.tsx             # Roteamento principal
 ```
 
-## Fluxo de autenticação
 
-1. Login → `authService.login()` → salva token no `localStorage`
-2. `AuthContext` expõe `usuario`, `isCliente`, `isMercado`, `isAdmin`
-3. `PrivateRoute` protege rotas por role e redireciona se não autorizado
-4. `api.ts` injeta o token automaticamente em todas as requisições
-
-## Próximos passos sugeridos
-
-1. Implementar `CadastroClientePage` e `CadastroComerciantePage`
-2. Implementar `NovaReservaPage` (listar mercados → listar produtos → escolher data)
-3. Implementar páginas de detalhe de reserva
-4. Adicionar estilização (Tailwind, Styled Components ou CSS Modules)
-5. Adicionar biblioteca de formulários (React Hook Form + Zod)
