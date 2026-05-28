@@ -4,6 +4,7 @@ import { PrivateRoute, PublicRoute } from './routes/PrivateRoute';
 import { Navbar } from './components/Navbar';
 import { useAuth } from './contexts/AuthContext';
 
+
 import {
   LoginPage,
   CadastroClientePage,
@@ -16,6 +17,7 @@ import {
   ProdutosPage,
   UsuariosPage,
   PerfilPage,
+  MercadosPage,
 } from './pages/index';
 
 // Layout separado para ter acesso ao AuthContext
@@ -47,6 +49,7 @@ export function App() {
               <Route path="/cliente/reservas" element={<MinhasReservasPage />} />
               <Route path="/cliente/reservas/nova" element={<NovaReservaPage />} />
               <Route path="/cliente/reservas/:id" element={<DetalheReservaClientePage />} />
+              <Route path="/cliente/mercados" element={<MercadosPage />} />
             </Route>
 
             <Route element={<PrivateRoute roles={['MERCADO']} />}>

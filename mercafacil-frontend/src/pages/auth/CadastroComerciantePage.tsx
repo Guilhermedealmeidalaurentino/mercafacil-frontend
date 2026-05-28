@@ -1,20 +1,16 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usuariosService } from '../../api/services';
+import { authStyles as s } from '../../styles/auth';
+import { PasswordInput } from '../../components/PasswordInput';
 
 export const CadastroComerciantePage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    nome: '',
-    email: '',
-    senha: '',
-    confirmarSenha: '',
-    cpf: '',
-    telefone: '',
-    cnpj: '',
-    cep: '',
-    nome_mercado: '',
+    nome: '', email: '', senha: '', confirmarSenha: '',
+    cpf: '', telefone: '', cnpj: '', cep: '', nome_mercado: '',
   });
+  const [aceitouTermos, setAceitouTermos] = useState(false);
   const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -24,8 +20,7 @@ export const CadastroComerciantePage = () => {
 
   const handleCPF = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value
-      .replace(/\D/g, '')
-      .slice(0, 11)
+      .replace(/\D/g, '').slice(0, 11)
       .replace(/(\d{3})(\d)/, '$1.$2')
       .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
       .replace(/\.(\d{3})(\d)/, '.$1-$2');
@@ -34,8 +29,7 @@ export const CadastroComerciantePage = () => {
 
   const handleCNPJ = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value
-      .replace(/\D/g, '')
-      .slice(0, 14)
+      .replace(/\D/g, '').slice(0, 14)
       .replace(/^(\d{2})(\d)/, '$1.$2')
       .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
       .replace(/\.(\d{3})(\d)/, '.$1/$2')
@@ -45,8 +39,7 @@ export const CadastroComerciantePage = () => {
 
   const handleCEP = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value
-      .replace(/\D/g, '')
-      .slice(0, 8)
+      .replace(/\D/g, '').slice(0, 8)
       .replace(/^(\d{5})(\d)/, '$1-$2');
     setForm({ ...form, cep: valor });
   };
@@ -55,28 +48,11 @@ export const CadastroComerciantePage = () => {
     e.preventDefault();
     setErro('');
 
-    if (form.senha !== form.confirmarSenha) {
-      setErro('As senhas não coincidem');
-      return;
-    }
-
-    const cnpjLimpo = form.cnpj.replace(/\D/g, '');
-    if (cnpjLimpo.length !== 14) {
-      setErro('CNPJ inválido — deve ter 14 dígitos');
-      return;
-    }
-
-    const cepLimpo = form.cep.replace(/\D/g, '');
-    if (cepLimpo.length !== 8) {
-      setErro('CEP inválido — deve ter 8 dígitos');
-      return;
-    }
-
-    const cpfLimpo = form.cpf.replace(/\D/g, '');
-    if (cpfLimpo.length !== 11) {
-      setErro('CPF inválido — deve ter 11 dígitos');
-      return;
-    }
+    if (form.senha !== form.confirmarSenha) { setErro('As senhas não coincidem'); return; }
+    if (form.cnpj.replace(/\D/g, '').length !== 14) { setErro('CNPJ inválido'); return; }
+    if (form.cep.replace(/\D/g, '').length !== 8) { setErro('CEP inválido'); return; }
+    if (form.cpf.replace(/\D/g, '').length !== 11) { setErro('CPF inválido'); return; }
+    if (!aceitouTermos) { setErro('Você precisa aceitar os termos de uso'); return; }
 
     setLoading(true);
     try {
@@ -84,10 +60,10 @@ export const CadastroComerciantePage = () => {
         nome: form.nome,
         email: form.email,
         senha: form.senha,
-        cpf: cpfLimpo,
+        cpf: form.cpf.replace(/\D/g, ''),
         telefone: form.telefone || undefined,
-        cnpj: cnpjLimpo,
-        cep: cepLimpo,
+        cnpj: form.cnpj.replace(/\D/g, ''),
+        cep: form.cep.replace(/\D/g, ''),
         nome_mercado: form.nome_mercado,
       });
       navigate('/login');
@@ -99,145 +75,98 @@ export const CadastroComerciantePage = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: '2rem auto', padding: '2rem' }}>
-      <h1>Cadastro de Comerciante</h1>
-      <form onSubmit={handleSubmit}>
+    <div style={s.page}>
+      <div style={{ ...s.card, maxWidth: '480px' }}>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Nome completo</label>
-          <input
-            name="nome"
-            type="text"
-            placeholder="Seu nome completo"
-            value={form.nome}
-            onChange={handleChange}
-            required
-            minLength={3}
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-          />
+        <div style={s.logo}>
+          <div style={s.logoIcon}>🛒</div>
+          <span style={s.logoText}>MercaFácil</span>
         </div>
+        <p style={s.title}>Cadastro de Comerciante</p>
+        <p style={s.subtitle}>Crie sua conta e seu mercado de uma vez</p>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>E-mail</label>
-          <input
-            name="email"
-            type="email"
-            placeholder="seu@gmail.com"
-            value={form.email}
-            onChange={handleChange}
-            required
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <label style={s.label}>Nome completo</label>
+          <input name="nome" type="text" placeholder="Seu nome completo"
+            value={form.nome} onChange={handleChange} required minLength={3} style={s.input} />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>CPF</label>
-          <input
-            name="cpf"
-            type="text"
-            placeholder="000.000.000-00"
-            value={form.cpf}
-            onChange={handleCPF}
-            required
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-          />
-        </div>
+          <label style={s.label}>E-mail</label>
+          <input name="email" type="email" placeholder="seu@email.com"
+            value={form.email} onChange={handleChange} required style={s.input} />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Telefone (opcional)</label>
-          <input
-            name="telefone"
-            type="text"
-            placeholder="(11) 99999-9999"
-            value={form.telefone}
-            onChange={handleChange}
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-          />
-        </div>
+          <label style={s.label}>CPF</label>
+          <input name="cpf" type="text" placeholder="000.000.000-00"
+            value={form.cpf} onChange={handleCPF} required style={s.input} />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Senha</label>
-          <input
+          <label style={s.label}>Telefone (opcional)</label>
+          <input name="telefone" type="text" placeholder="(11) 99999-9999"
+            value={form.telefone} onChange={handleChange} style={s.input} />
+
+          <label style={s.label}>Senha</label>
+          <PasswordInput
             name="senha"
-            type="password"
-            placeholder="Mínimo 6 caracteres"
             value={form.senha}
             onChange={handleChange}
             required
             minLength={6}
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
           />
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Confirmar Senha</label>
-          <input
+          <label style={s.label}>Confirmar senha</label>
+          <PasswordInput
             name="confirmarSenha"
-            type="password"
-            placeholder="Repita a senha"
             value={form.confirmarSenha}
             onChange={handleChange}
             required
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
           />
-        </div>
+          <label style={s.label}>Nome do mercado</label>
+          <input name="nome_mercado" type="text" placeholder="Ex: Mercadinho do João"
+            value={form.nome_mercado} onChange={handleChange} required minLength={3} style={s.input} />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Nome do mercado</label>
-          <input
-            name="nome_mercado"
-            type="text"
-            placeholder="Ex: Mercadinho do João"
-            value={form.nome_mercado}
-            onChange={handleChange}
-            required
-            minLength={3}
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-          />
-        </div>
+          <label style={s.label}>CNPJ</label>
+          <input name="cnpj" type="text" placeholder="00.000.000/0000-00"
+            value={form.cnpj} onChange={handleCNPJ} required style={s.input} />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>CNPJ</label>
-          <input
-            name="cnpj"
-            type="text"
-            placeholder="00.000.000/0000-00"
-            value={form.cnpj}
-            onChange={handleCNPJ}
-            required
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label>CEP</label>
-          <input
-            name="cep"
-            type="text"
-            placeholder="00000-000"
-            value={form.cep}
-            onChange={handleCEP}
-            required
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-          />
-          <small style={{ color: '#888' }}>
+          <label style={s.label}>CEP</label>
+          <input name="cep" type="text" placeholder="00000-000"
+            value={form.cep} onChange={handleCEP} required style={s.input} />
+          <small style={{ color: '#888', display: 'block', marginTop: '-0.75rem', marginBottom: '1.25rem' }}>
             O endereço será preenchido automaticamente pelo CEP.
           </small>
-        </div>
 
-        {erro && <p style={{ color: 'red' }}>{erro}</p>}
+          <div style={s.checkboxRow}>
+            <input
+              type="checkbox"
+              checked={aceitouTermos}
+              onChange={(e) => setAceitouTermos(e.target.checked)}
+              style={{ marginTop: '2px', accentColor: '#2ecc8f' }}
+            />
+            <span>
+              Aceito os <a href="#" style={s.link}>termos de uso</a> e{' '}
+              <a href="#" style={s.link}>política de privacidade</a>
+            </span>
+          </div>
 
-        <button type="submit" disabled={loading} style={{ width: '100%', padding: '0.75rem' }}>
-          {loading ? 'Cadastrando...' : 'Criar conta e mercado'}
-        </button>
-      </form>
+          {erro && <p style={s.error}>{erro}</p>}
 
-      <p style={{ marginTop: '1rem', textAlign: 'center' }}>
-        Já tem conta? <Link to="/login">Entrar</Link>
-      </p>
-      <p style={{ textAlign: 'center' }}>
-        É cliente? <Link to="/cadastrar/cliente">Cadastre-se como cliente</Link>
-      </p>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{ ...s.button, ...(loading ? s.buttonDisabled : {}) }}
+          >
+            {loading ? 'Cadastrando...' : 'Criar conta e mercado'}
+          </button>
+        </form>
+
+        <p style={s.footer}>
+          Já possui uma conta?{' '}
+          <Link to="/login" style={s.link}>Entrar</Link>
+        </p>
+        <p style={{ ...s.footer, marginTop: '0.5rem' }}>
+          É cliente?{' '}
+          <Link to="/cadastrar/cliente" style={s.link}>Cadastre-se aqui</Link>
+        </p>
+      </div>
+
+      <p style={s.copyright}>© 2026 MercaFácil - Todos os direitos reservados</p>
     </div>
   );
 };

@@ -8,6 +8,7 @@ export { CadastroComerciantePage } from './auth/CadastroComerciantePage';
 export { MinhasReservasPage } from './cliente/MinhasReservasPage';
 export const NovaReservaPage = () => <div><h1>Nova Reserva</h1><p>Liste mercados, produtos, escolha data_retirada e chame reservasService.criar()</p></div>;
 export const DetalheReservaClientePage = () => <div><h1>Detalhe da Reserva</h1><p>Use useParams para pegar o id e chame reservasService.buscarPorId()</p></div>;
+export { MercadosPage } from './cliente/MercadosPage';
 
 // ─── Comerciante ──────────────────────────────────────────────────────────────
 export { ReservasMercadoPage } from './comerciante/ReservasMercadoPage';

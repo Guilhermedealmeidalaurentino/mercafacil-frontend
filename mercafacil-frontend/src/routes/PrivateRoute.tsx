@@ -26,7 +26,7 @@ export const PublicRoute = () => {
   if (!isAuthenticated) return <Outlet />;
 
   const dashboardMap: Record<IUsuario['role'], string> = {
-    CLIENTE: '/cliente/reservas',
+    CLIENTE: '/cliente/mercados', 
     MERCADO: '/comerciante/reservas',
     ADMIN: '/admin/usuarios',
   };

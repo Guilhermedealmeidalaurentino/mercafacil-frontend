@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usuariosService } from '../../api/services';
+import { authStyles as s } from '../../styles/auth';
+import { PasswordInput } from '../../components/PasswordInput';
+
 
 export const CadastroClientePage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    nome: '',
-    email: '',
-    senha: '',
-    confirmarSenha: '',
-    cpf: '',
+    nome: '', email: '', senha: '', confirmarSenha: '', cpf: '',
   });
+  const [aceitouTermos, setAceitouTermos] = useState(false);
   const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -20,8 +20,7 @@ export const CadastroClientePage = () => {
 
   const handleCPF = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value
-      .replace(/\D/g, '')
-      .slice(0, 11)
+      .replace(/\D/g, '').slice(0, 11)
       .replace(/(\d{3})(\d)/, '$1.$2')
       .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
       .replace(/\.(\d{3})(\d)/, '.$1-$2');
@@ -43,6 +42,11 @@ export const CadastroClientePage = () => {
       return;
     }
 
+    if (!aceitouTermos) {
+      setErro('Você precisa aceitar os termos de uso');
+      return;
+    }
+
     setLoading(true);
     try {
       await usuariosService.cadastrarCliente({
@@ -60,90 +64,82 @@ export const CadastroClientePage = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: '2rem auto', padding: '2rem' }}>
-      <h1>Cadastro de Cliente</h1>
-      <form onSubmit={handleSubmit}>
+    <div style={s.page}>
+      <div style={s.card}>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Nome</label>
-          <input
-            name="nome"
-            type="text"
-            placeholder="Seu nome completo"
-            value={form.nome}
-            onChange={handleChange}
-            required
-            minLength={3}
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-          />
+        <div style={s.logo}>
+          <div style={s.logoIcon}>🛒</div>
+          <span style={s.logoText}>MercaFácil</span>
         </div>
+        <p style={s.title}>Criar conta</p>
+        <p style={s.subtitle}>Cadastre-se para começar</p>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>E-mail</label>
-          <input
-            name="email"
-            type="email"
-            placeholder="seu@gmail.com"
-            value={form.email}
-            onChange={handleChange}
-            required
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-          />
-        </div>
+        <form onSubmit={handleSubmit}>
+          <label style={s.label}>Nome completo</label>
+          <input name="nome" type="text" placeholder="Seu nome completo"
+            value={form.nome} onChange={handleChange} required minLength={3} style={s.input} />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>CPF</label>
-          <input
-            name="cpf"
-            type="text"
-            placeholder="000.000.000-00"
-            value={form.cpf}
-            onChange={handleCPF}
-            required
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
-          />
-        </div>
+          <label style={s.label}>E-mail</label>
+          <input name="email" type="email" placeholder="seu@email.com"
+            value={form.email} onChange={handleChange} required style={s.input} />
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Senha</label>
-          <input
+          <label style={s.label}>CPF</label>
+          <input name="cpf" type="text" placeholder="000.000.000-00"
+            value={form.cpf} onChange={handleCPF} required style={s.input} />
+
+          <label style={s.label}>Senha</label>
+          <PasswordInput
             name="senha"
-            type="password"
-            placeholder="Mínimo 6 caracteres"
             value={form.senha}
             onChange={handleChange}
             required
             minLength={6}
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
           />
-        </div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>Confirmar Senha</label>
-          <input
+
+          <label style={s.label}>Confirmar senha</label>
+          <PasswordInput
             name="confirmarSenha"
-            type="password"
-            placeholder="Repita a senha"
             value={form.confirmarSenha}
             onChange={handleChange}
             required
-            style={{ display: 'block', width: '100%', padding: '0.5rem' }}
           />
-        </div>
 
-        {erro && <p style={{ color: 'red' }}>{erro}</p>}
+          <div style={s.checkboxRow}>
+            <input
+              type="checkbox"
+              checked={aceitouTermos}
+              onChange={(e) => setAceitouTermos(e.target.checked)}
+              style={{ marginTop: '2px', accentColor: '#2ecc8f' }}
+            />
+            <span>
+              Aceito os <a href="#" style={s.link}>termos de uso</a> e{' '}
+              <a href="#" style={s.link}>política de privacidade</a>
+            </span>
+          </div>
 
-        <button type="submit" disabled={loading} style={{ width: '100%', padding: '0.75rem' }}>
-          {loading ? 'Cadastrando...' : 'Criar conta'}
-        </button>
-      </form>
+          {erro && <p style={s.error}>{erro}</p>}
 
-      <p style={{ marginTop: '1rem', textAlign: 'center' }}>
-        Já tem conta? <Link to="/login">Entrar</Link>
-      </p>
-      <p style={{ textAlign: 'center' }}>
-        É comerciante? <Link to="/cadastrar/comerciante">Cadastre seu mercado</Link>
-      </p>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{ ...s.button, ...(loading ? s.buttonDisabled : {}) }}
+          >
+            {loading ? 'Cadastrando...' : 'Cadastrar'}
+          </button>
+        </form>
+
+        <p style={s.footer}>
+          Já possui uma conta?{' '}
+          <Link to="/login" style={s.link}>Entrar</Link>
+        </p>
+        <p style={{ ...s.footer, marginTop: '0.5rem' }}>
+          É comerciante?{' '}
+          <Link to="/cadastrar/comerciante" style={s.link}>Cadastre seu mercado</Link>
+        </p>
+      </div>
+
+      <p style={s.copyright}>© 2026 MercaFácil - Todos os direitos reservados</p>
     </div>
   );
 };
